@@ -1,13 +1,23 @@
 # Trackonomics
 
-Standalone music catalogue analytics prototype. Open `index.html` in a browser. All scores are illustrative; they do not represent real Spotify popularity, revenue or streams. To publish, push this folder to a GitHub repository and configure Settings > Pages > Deploy from a branch > main > /(root).
+Live music industry catalogue explorer and illustrative analytics prototype: https://allablur.github.io/Trackonomics/.
 
-## Build toward Spotify integration
-1. Register a Spotify developer app and check currently accessible metadata endpoints and terms.
-2. Implement authorization appropriate to the endpoints, keeping secrets server-side.
-3. Model artist, album and track metadata in relational tables; optionally store dated snapshots where permitted.
-4. Use Python, pandas and SQL to aggregate release counts, categories and available metrics.
-5. Replace the illustrative catalogue in demo.js with authorized data returned by your backend.
-6. Test comparison, filtering and exports; label missing or inaccessible metrics explicitly.
+## Live artist metrics
 
-Files: index.html, demo.js, style.css. This is a working front-end prototype; Python/SQL backend work remains a planned iteration.
+Search MusicBrainz artists, select up to 10 canonical artist IDs, compare total listens and unique listeners from ListenBrainz, explore top recordings and export a sourced CSV. These are ListenBrainz community counts, not Spotify streams, revenue, monthly listeners or market share. Missing counts are unavailable, not zero. The original simulated catalogue dashboard remains clearly labelled.
+
+## Backend
+
+The deployed Supabase Edge Function is `trackonomics-metrics` in the SoundLab project. It accepts a public project key, restricts browser origins, validates artist identifiers and uses fixed upstream endpoints. It shares the server-only cache and global rate gate installed by Sample Trail, stores normalized public aggregate metrics for six hours and does not read personal workspace records. Upstream MusicBrainz and ListenBrainz requests have an identifying User-Agent. For a new deployment, install Sample Trail's shared `supabase/schema.sql` first, then deploy the Edge Function with application-level publishable-key validation (legacy JWT verification off). No service-role key is exposed in the client.
+
+## Tests
+
+`node --test demo.test.mjs metrics.test.mjs` (Node.js 24). Verified live artist lookup, batch comparison for Kendrick Lamar and SZA, and top recordings for Kendrick Lamar.
+
+## Remaining work
+
+- Live release timeline, genre and catalogue analysis (currently simulated).
+- Store dated historical metrics snapshots with retention controls.
+- Spotify analytics are not used: the [Spotify Developer Policy](https://developer.spotify.com/policy) restricts deriving analytics from Spotify platform content.
+
+Sources: [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API), [ListenBrainz popularity API](https://listenbrainz.readthedocs.io/en/latest/users/api/popularity.html), [MusicBrainz data license](https://musicbrainz.org/doc/About/Data_License).
